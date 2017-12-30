@@ -1,0 +1,10 @@
+package com.darkenchanter.serversettings;
+
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
+
+public class SSMain extends GuiScreen {
+	public SSMain() {
+		buttonList.add(new GuiButton(0, 10, 10, ""));
+	}
+}

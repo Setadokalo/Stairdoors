@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+<fullyQualifiedTypeName name="net.minecraft.client.gui.GuiMultiplayer"/>
+<fullyQualifiedTypeName name="org.spongepowered.asm.mixin.Shadow"/>
+<fullyQualifiedTypeName name="org.spongepowered.asm.mixin.Mixin"/>
+<fullyQualifiedTypeName name="org.spongepowered.asm.launch.MixinBootstrap"/>
+<fullyQualifiedTypeName name="org.spongepowered.asm.mixin.MixinEnvironment"/>
+<fullyQualifiedTypeName name="org.spongepowered.asm.mixin.Mixins"/>
+<fullyQualifiedTypeName name="org.spongepowered.asm.mixin.injection.Inject"/>
+<fullyQualifiedTypeName name="org.spongepowered.asm.mixin.injection.At"/>
+<fullyQualifiedTypeName name="org.spongepowered.asm.mixin.injection.callback.CallbackInfo"/>
+<fullyQualifiedTypeName name="com.darkenchanter.serversettings.SSMain"/>
+<fullyQualifiedTypeName name="net.minecraft.client.gui.ServerSelectionList"/>
+<fullyQualifiedTypeName name="net.minecraft.client.gui.GuiScreenServerList"/>
+<fullyQualifiedTypeName name="net.minecraft.client.gui.GuiScreenAddServer"/>
+<fullyQualifiedTypeName name="net.minecraft.client.gui.GuiListExtended"/>
+<fullyQualifiedTypeName name="net.minecraft.client.gui.ServerListEntryNormal"/>
+<fullyQualifiedTypeName name="net.minecraft.client.gui.ServerListEntryLanScan"/>
+<fullyQualifiedTypeName name="net.minecraft.client.gui.ServerListEntryLanDetected"/>
+<fullyQualifiedTypeName name="net.minecraft.client.gui.GuiScreen"/>
+<fullyQualifiedTypeName name="net.minecraft.client.gui.GuiMainMenu"/>
+<fullyQualifiedTypeName name="net.minecraft.client.gui.GuiButton"/>
+</qualifiedTypeNameHistroy>

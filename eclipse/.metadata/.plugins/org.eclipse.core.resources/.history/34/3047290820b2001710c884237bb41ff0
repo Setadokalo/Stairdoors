@@ -1,0 +1,15 @@
+{
+    "required": true,
+    "package": "com.darkenchanter.serversettings",
+    "compatibilityLevel": "JAVA_8",
+    "minVersion": "0.6.15-SNAPSHOT",
+    "mixins": ["com.darkenchanter.serversettings.ServerMenuOverride"],
+    "client": [    ],
+    "server": [],
+    "injectors": {
+        "defaultRequire": 1
+    },
+    "overwrites": {
+        "conformVisibility": true
+    }
+}

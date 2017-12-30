@@ -1,0 +1,4 @@
+INDEX VERSION 1.130+/home/greg/Documents/forge-1.12.2-14.23.0.2512-mdk/eclipse/.metadata/.plugins/org.eclipse.jdt.core
+3725834016.index
+2540607589.index
+985988326.index

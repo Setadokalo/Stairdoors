@@ -1,0 +1,18 @@
+package com.darkenchanter.serversettings;
+
+import org.spongepowered.asm.mixin.Mixin;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiListExtended;
+import net.minecraft.client.gui.GuiMultiplayer;
+import net.minecraft.client.gui.ServerSelectionList;
+import net.minecraftforge.event.entity.player.PlayerPickupXpEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+@Mixin(GuiMultiplayer.class)
+public abstract class ServerMenuOverride extends GuiListExtended{
+    
+    public ServerMenuOverride(Minecraft mcIn, int widthIn, int heightIn, int topIn, int bottomIn, int slotHeightIn) {
+		super(mcIn, widthIn, heightIn, topIn, bottomIn, slotHeightIn);
+	}
+    
+}

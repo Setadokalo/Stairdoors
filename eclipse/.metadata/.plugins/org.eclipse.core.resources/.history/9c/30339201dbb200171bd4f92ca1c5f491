@@ -1,0 +1,22 @@
+package com.darkenchanter.serversettings;
+
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
+
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.resources.I18n;
+
+public class SSMain extends GuiScreen {
+	public SSMain() {
+		this.buttonList.add(new GuiButton(1, 5, 5, "Howdy Folks!"));
+	}
+    /**
+     * Draws the screen and all the components in it.
+     */
+    public void drawScreen(int mouseX, int mouseY, float partialTicks)
+    {
+        this.drawCenteredString(this.fontRenderer, I18n.format("multiplayer.title"), this.width / 2, 20, 16777215);
+        super.drawScreen(mouseX, mouseY, partialTicks);
+    }
+}

@@ -1,0 +1,7 @@
+package com.darkenchanter.serversettings;
+
+import net.minecraft.client.gui.GuiScreen;
+
+public class SSMain extends GuiScreen {
+	
+}

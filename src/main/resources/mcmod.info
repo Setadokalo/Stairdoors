@@ -1,0 +1,16 @@
+[
+{
+  "modid": "stairdoors",
+  "name": "Doors On Stairs",
+  "description": "Allows doors to be placed on stairs.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["DarkEnchanter1"],
+  "credits": "DarkEnchanter1 for the creation of this mod",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

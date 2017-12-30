@@ -1,0 +1,85 @@
+package com.darkenchanter.mixins;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.lwjgl.input.Keyboard;
+import org.spongepowered.asm.launch.MixinBootstrap;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.At;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiListExtended;
+import net.minecraft.client.gui.GuiMultiplayer;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.ServerSelectionList;
+import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.client.multiplayer.ServerList;
+import net.minecraft.client.network.LanServerDetector;
+import net.minecraft.client.network.ServerPinger;
+import net.minecraft.client.resources.I18n;
+import net.minecraftforge.event.entity.player.PlayerPickupXpEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+@Mixin(GuiMultiplayer.class)
+public abstract class ServerMenuOverride extends GuiScreen{
+	@Shadow
+    private static final Logger LOGGER = LogManager.getLogger();
+	@Shadow
+    private ServerSelectionList serverListSelector;
+	@Shadow
+    private ServerList savedServerList;
+	@Shadow
+    private LanServerDetector.LanServerList lanServerList;
+	@Shadow
+    private LanServerDetector.ThreadLanServerFind lanServerDetector;
+	@Shadow
+    private boolean initialized;
+	private boolean hasRun = false;
+	  public void initGui()
+	    {
+		  if (!hasRun) {
+		  LOGGER.info("Mixing in custom buttons to Server Page");
+		  hasRun = true;
+		  }
+	        Keyboard.enableRepeatEvents(true);
+	        this.buttonList.clear();
+
+	        if (this.initialized)
+	        {
+	            this.serverListSelector.setDimensions(this.width, this.height, 32, this.height - 64);
+	        }
+	        else
+	        {
+	            this.initialized = true;
+	            this.savedServerList = new ServerList(this.mc);
+	            this.savedServerList.loadServerList();
+	            this.lanServerList = new LanServerDetector.LanServerList();
+
+	            try
+	            {
+	                this.lanServerDetector = new LanServerDetector.ThreadLanServerFind(this.lanServerList);
+	                this.lanServerDetector.start();
+	            }
+	            catch (Exception exception)
+	            {
+	                LOGGER.warn("Unable to start LAN server detection: {}", (Object)exception.getMessage());
+	            }
+
+	            this.serverListSelector = new ServerSelectionList((GuiMultiplayer)((GuiScreen)this), this.mc, this.width, this.height, 32, this.height - 64, 36);
+	            this.serverListSelector.updateOnlineServers(this.savedServerList);
+	        }
+
+	        this.createButtons();
+	        this.buttonList.add(new GuiButton(9, 0, 0, 80, 30, "Open Custom Menu"));
+	        }
+	  @Shadow
+	    public void createButtons()
+	    {}
+	  @Inject(method = "actionPerformed", at = @At("HEAD"))
+	  void onActionPerformed(GuiButton but, CallbackInfo ci) {
+		  LOGGER.info("Button is " + but.id + " with text of " + but.displayString);
+	  }
+}

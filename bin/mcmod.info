@@ -1,0 +1,16 @@
+[
+{
+  "modid": "serversettings",
+  "name": "Server Settings Controller",
+  "description": "Allows the user to control server side settings.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["DarkEnchanter1"],
+  "credits": "DarkEnchanter1 for the creation of this mod",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
