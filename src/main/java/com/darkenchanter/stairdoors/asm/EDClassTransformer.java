@@ -22,11 +22,11 @@ public class EDClassTransformer implements IClassTransformer, Opcodes
 	private Logger log = LogManager.getLogger("Class Transformer");
 	@Override
 	public byte[] transform(String arg0, String arg1, byte[] arg2) {
-		if (arg0.equals("aqa")) {
+		if (arg0.equals("aqa")) { // The obfuscated BlockDoor class
 			this.log.debug("[USRENV] Inside Door transformer about to patch " + arg0);
 			return patchBlockDoor(arg2, true);
 		}
-		else if (arg0.equals("net.minecraft.block.BlockDoor")) {
+		else if (arg0.equals("net.minecraft.block.BlockDoor")) { // The development environment BlockDoor class
 			this.log.debug("[DEVENV] Inside Door transformer about to patch " + arg0);
 			return patchBlockDoor(arg2, false);
 		}
@@ -41,8 +41,8 @@ public class EDClassTransformer implements IClassTransformer, Opcodes
 	 */
 	private byte[] patchBlockDoor(byte[] classData, boolean obf) {
 		// Handle the obfuscation
-		String canPlaceBlockAt;
-		String canPlaceBlockAt_desc;
+		String canPlaceBlockAt; // These are the names and descriptions of the methods, and need to be changed based on
+		String canPlaceBlockAt_desc; // whether or not the environment is obfuscated.
 		String neighborChanged;
 		String neighborChanged_desc;
 		if (obf) { //Set all the strings to their obfuscated names
@@ -57,12 +57,12 @@ public class EDClassTransformer implements IClassTransformer, Opcodes
 			neighborChanged = "neighborChanged";
 			neighborChanged_desc = "(Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/util/math/BlockPos;)V";
 		}
-		// Set up the class reader
-		ClassReader cr = new ClassReader(classData);
-		ClassNode cv = new ClassNode();
-		cr.accept(cv, 0);
+		// Set up the class reader, which allows the class data to be accessed in a useful way
+		ClassReader cr = new ClassReader(classData); // This just reads the data.
+		ClassNode cv = new ClassNode(); // This can manipulate the data.
+		cr.accept(cv, 0); // This allows the ClassNode to access the data from the ClassReader.
 
-		//Loop through all methods to find the one we want
+		//Loops through all the methods in the ClassNode and finds the two methods we want, then runs the associated method.
 		for (MethodNode method : cv.methods) {
 			/* -------- canPlaceBlockAt -------- */
 			if (method.name.equals(canPlaceBlockAt) && method.desc.equals(canPlaceBlockAt_desc))
@@ -79,9 +79,12 @@ public class EDClassTransformer implements IClassTransformer, Opcodes
 					patchNeighborChanged(method);
 				}
 		}
-		//ASM specific for cleaning up and returning the final bytes for JVM processing.
+		//This is actually capable of making those changes back into a byte array.
+		//I am unsure of what the combined ints do.
 		ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+		// Allows the ClassWriter to access the modified data
 		cv.accept(writer);
+		// Returns the modified data.
 		return writer.toByteArray();
 	}
 
@@ -90,18 +93,18 @@ public class EDClassTransformer implements IClassTransformer, Opcodes
 	 * @param method The MethodNode referring to canPlaceBlockAt.
 	 */
 	private void patchCanPlaceBlockAt(MethodNode method) {
-		log.debug("Inside canPlaceBlockAt, see? " + method.name + "::" + method.desc);
-		AbstractInsnNode currentNode;
+		log.debug("Inside canPlaceBlockAt, see? " + method.name + "::" + method.desc); // Tool to make sure injection worked right.
+		AbstractInsnNode currentNode; // The node the iterator is currently looking at.
 
 		Iterator<AbstractInsnNode> iter = method.instructions.iterator();
 
-		//Loop over the instruction set and find the instruction FDIV which does the division of 1/explosionSize
+		//Loops across all instructions in the method and finds the instruction of ASTORE 3, which occurs only once and is where my injection starts.
 		while (iter.hasNext())
 		{
-			currentNode = iter.next();
+			currentNode = iter.next(); //Move the node 'pointer' forward one.
 
 			// Determines if the instruction is ASTORE, which is needed
-			if ((currentNode.getOpcode() == Opcodes.ASTORE)    // Casts the value of currentNode to be a VarInsnNode
+			if ((currentNode.getOpcode() == Opcodes.ASTORE)    //     Casts the value of currentNode to be a VarInsnNode
 					&& (((VarInsnNode) currentNode).var == 3)) // if it is an ASTORE instruction and gets it's variable.
 			{
 				log.debug("At right location in canPlaceBlockAt, begin injection");
@@ -109,12 +112,19 @@ public class EDClassTransformer implements IClassTransformer, Opcodes
 				// Begin transforming stuff!
 
 				InsnList insert = new InsnList(); // The list of instructions to add to the method
-				/*                     --- This is what needs to be added ---                             */
-				/*
-				/* INVOKESTATIC net/darkenchanter/stairdoors/inject/BlockDoor.canPlaceBlockAtInject ()Z;  */
-				/* IFEQ L3                                                                                */
-                /* IRETURN 1                                                                              */
-				MethodInsnNode invokeCPBAInject =
+				/*                         --- This is what needs to be added ---                         *|
+				|* This stuff calls the inject method, then either returns that (if true) or continues.   *|
+				|*                                                                                        *|
+				|* ALOAD 1                                                                                *|
+				|* ALOAD 2                                                                                *|
+				|* ALOAD 0                                                                                *|
+				|* INVOKESTATIC net/darkenchanter/stairdoors/inject/BlockDoor.canPlaceBlockAtInject ()Z;  *|
+				|*                                                                                        *|
+				|* IFEQ L3_1                                                                              *|
+				|* ICONST_1                                                                               *|
+                |* IRETURN                                                                                *|
+                |* LABEL L3_1                                                                             */
+				MethodInsnNode invokeCPBAInject = // Creates the INVOKESTATIC above
 						new MethodInsnNode(
 								INVOKESTATIC,
 								"com/darkenchanter/stairdoors/inject/BlockDoorI",
@@ -123,17 +133,17 @@ public class EDClassTransformer implements IClassTransformer, Opcodes
 									"Lnet/minecraft/util/math/BlockPos;" +
 									"Lnet/minecraft/block/BlockDoor;)Z",
 								false);
-				insert.add(new VarInsnNode(ALOAD, 1));
-				insert.add(new VarInsnNode(ALOAD, 2));
-				insert.add(new VarInsnNode(ALOAD, 0));
-				insert.add(invokeCPBAInject);
+				insert.add(new VarInsnNode(ALOAD, 1)); // Adds the first argument from canPlaceBlockAtInject to the stack.
+				insert.add(new VarInsnNode(ALOAD, 2)); // The second
+				insert.add(new VarInsnNode(ALOAD, 0)); // The third
+				insert.add(invokeCPBAInject);          // Calls the method.
 
-				LabelNode L3_1 = new LabelNode();
+				LabelNode L3_1 = new LabelNode(); // The label put after the RETURN statement so that the method can continue if the value is 0.
 
 				JumpInsnNode ifeq = new JumpInsnNode(IFEQ, L3_1);
-				insert.add(ifeq);
-				insert.add(new InsnNode(ICONST_1));
-				insert.add(new InsnNode(IRETURN));
+				insert.add(ifeq); //Jumps past the next line if the value is 0 so that the method doesn't always return true.
+				insert.add(new InsnNode(ICONST_1)); // Pushes 1 (TRUE) to the stack.
+				insert.add(new InsnNode(IRETURN)); // Returns that 1 (TRUE).
 				insert.add(L3_1);
 				method.instructions.insert(currentNode, insert);
 				break;
@@ -166,11 +176,18 @@ public class EDClassTransformer implements IClassTransformer, Opcodes
 				// Begin transforming stuff!
 
 				InsnList insert = new InsnList(); // The list of instructions to add to the method
-				/*                     --- This is what needs to be added ---                             */
-				/*
-				/* INVOKESTATIC com/darkenchanter/stairdoors/inject/BlockDoor.canPlaceBlockAtInject ()Z;  */
-				/* IFEQ L3                                                                                */
-                /* IRETURN 1                                                                              */
+				/*                         --- This is what needs to be added ---                         *|
+				|* This stuff calls the inject method, then either returns that (if true) or continues.   *|
+				|*                                                                                        *|
+				|* ALOAD 1                                                                                *|
+				|* ALOAD 2                                                                                *|
+				|* ALOAD 0                                                                                *|
+				|* INVOKESTATIC net/darkenchanter/stairdoors/inject/BlockDoor.canPlaceBlockAtInject ()Z;  *|
+				|*                                                                                        *|
+				|* IFEQ L3_1                                                                              *|
+				|* ICONST_1                                                                               *|
+                |* IRETURN                                                                                *|
+                |* LABEL L3_1                                                                             */
 				MethodInsnNode invokeCPBAInject =
 						new MethodInsnNode(
 								INVOKESTATIC,
@@ -231,7 +248,7 @@ public class EDClassTransformer implements IClassTransformer, Opcodes
 				ALOAD 2 //Loads World from method input
 				ALOAD 3 //Loads BlockPos from method input
 				INVOKESTATIC com/darkenchanter/stairdoors/inject/BlockDoorI neighborChangedInject (Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)Z
-				IOR //Compares the first and second return values of the method, if either is 1 than the result is 1
+				IOR //Compares the original and new return values of the method, if either is 1 than the result is 1
 
 				*/
 				insert.add(new VarInsnNode(ALOAD, 1));
@@ -278,14 +295,16 @@ public class EDClassTransformer implements IClassTransformer, Opcodes
 				ALOAD 1 //Loads IBlockState from method input
 				ALOAD 2 //Loads World from method input
 				ALOAD 3 //Loads BlockPos from method input
-				INVOKESTATIC com/darkenchanter/stairdoors/inject/BlockDoorI neighborChangedInject (Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)Z
+				INVOKESTATIC com/darkenchanter/stairdoors/inject/BlockDoorI neighborChangedInject
+				[(Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)Z
 				IOR //Compares the first and second return values of the method, if either is 1 than the result is 1
 
 				*/
 				insert.add(new VarInsnNode(ALOAD, 1));
 				insert.add(new VarInsnNode(ALOAD, 2));
 				insert.add(new VarInsnNode(ALOAD, 3));
-				insert.add(new MethodInsnNode(INVOKESTATIC, "com/darkenchanter/stairdoors/inject/BlockDoorI", "neighborChangedInject", "(Lawt;Lamu;Let;)Z", false));
+				insert.add(new MethodInsnNode(INVOKESTATIC, "com/darkenchanter/stairdoors/inject/BlockDoorI",
+						"neighborChangedInject", "(Lawt;Lamu;Let;)Z", false));
 				insert.add(new InsnNode(IOR));
 				method.instructions.insert(currentNode, insert);
 				break;
